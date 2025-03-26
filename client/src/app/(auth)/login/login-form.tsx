@@ -19,9 +19,11 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema"
 import envConfig from "@/config"
+import { useAppContext } from "@/app/AppProvider"
 
 
 const LoginForm = () => {
+    const { setSessionToken } = useAppContext()
     const form = useForm<LoginBodyType>({
         resolver: zodResolver(LoginBody),
         defaultValues: {
@@ -34,7 +36,7 @@ const LoginForm = () => {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
         try {
-            await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`, {
+            const result = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`, {
                 method: 'POST',
                 body: JSON.stringify(values),
                 headers: {
@@ -52,6 +54,12 @@ const LoginForm = () => {
                 }
                 return data
             })
+            // fetch form next client to next server
+            fetch('/api/auth', {
+                method: 'POST',
+                body: JSON.stringify(result)
+            })
+            setSessionToken(result.payload.data.token)
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             const errors = error.payload.errors as { field: 'email' | 'password', message: string }[]
@@ -67,7 +75,6 @@ const LoginForm = () => {
                 toast(error.payload.message as string)
             }
         }
-
     }
     return (
         <div>
@@ -101,7 +108,6 @@ const LoginForm = () => {
                             </FormItem>
                         )}
                     />
-
                     <Button className="mt-8 w-full" type="submit">Submit</Button>
                 </form>
             </Form>

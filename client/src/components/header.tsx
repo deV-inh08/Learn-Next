@@ -6,10 +6,10 @@ export const Header = () => {
         <div>
             <ul>
                 <li>
-                    <Link href='/auth/login'>Đăng nhập</Link>
+                    <Link href='/login'>Đăng nhập</Link>
                 </li>
                 <li>
-                    <Link href='/auth/register'>Đăng kí</Link>
+                    <Link href='/register'>Đăng kí</Link>
                 </li>
             </ul>
             <ModeToggle />
