@@ -18,12 +18,12 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { LoginBody, LoginBodyType } from "@/schemaValidations/auth.schema"
-import envConfig from "@/config"
-import { useAppContext } from "@/app/AppProvider"
+import authApiRequest from "@/apiRequest/auth"
+import { useRouter } from "next/navigation"
 
 
 const LoginForm = () => {
-    const { setSessionToken } = useAppContext()
+    const router = useRouter()
     const form = useForm<LoginBodyType>({
         resolver: zodResolver(LoginBody),
         defaultValues: {
@@ -36,30 +36,13 @@ const LoginForm = () => {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
         try {
-            const result = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`, {
-                method: 'POST',
-                body: JSON.stringify(values),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            }).then(async (res) => {
-                const payload = await res.json()
-                const data = {
-                    status: res.status,
-                    payload
-                }
-                toast(data.payload.message)
-                if (!res.ok) {
-                    throw data
-                }
-                return data
-            })
+            const result = await authApiRequest.login(values)
             // fetch form next client to next server
-            fetch('/api/auth', {
-                method: 'POST',
-                body: JSON.stringify(result)
-            })
-            setSessionToken(result.payload.data.token)
+            authApiRequest.auth({ sessionToken: result.payload.data.token })
+            // display toast success
+            toast(result.payload.message as string)
+            // redirect page 'me'
+            router.push('/me')
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (error: any) {
             const errors = error.payload.errors as { field: 'email' | 'password', message: string }[]

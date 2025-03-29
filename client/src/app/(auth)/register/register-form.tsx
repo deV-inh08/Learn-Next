@@ -17,10 +17,13 @@ import { Input } from "@/components/ui/input"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { RegisterBody, RegisterBodyType } from "@/schemaValidations/auth.schema"
-import envConfig from "@/config"
+import authApiRequest from "@/apiRequest/auth"
+import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 
 const RegisterForm = () => {
+    const router = useRouter()
     const form = useForm<RegisterBodyType>({
         resolver: zodResolver(RegisterBody),
         defaultValues: {
@@ -34,14 +37,10 @@ const RegisterForm = () => {
     async function onSubmit(values: RegisterBodyType) {
         // Do something with the form values.
         // ✅ This will be type-safe and validated.
-        const result = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`, {
-            method: 'POST',
-            body: JSON.stringify(values),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        }).then((res) => res.json())
-        console.log(result)
+        const result = await authApiRequest.register(values)
+        toast(result.payload.message as string)
+        authApiRequest.auth({ sessionToken: result.payload.data.token })
+        router.push('/me')
     }
     return (
         <div>

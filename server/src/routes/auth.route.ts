@@ -70,6 +70,7 @@ export default async function authRoutes(fastify: FastifyInstance, options: Fast
       }
     }
   )
+
   fastify.post<{ Reply: MessageResType }>(
     '/logout',
     {

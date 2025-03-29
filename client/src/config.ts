@@ -8,7 +8,6 @@ const configProject = configSchema.safeParse({
     NEXT_PUBLIC_API_ENDPOINT: process.env.NEXT_PUBLIC_API_ENDPOINT
 })
 
-console.log(configProject)
 
 if (!configProject.success) {
     console.log(configProject.error.issues)

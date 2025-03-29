@@ -22,7 +22,6 @@ export default async function RootLayout({
 }>) {
   const cookie = await cookies()
   const sessionTokenFromClient = cookie.get('sessionToken')
-  console.log(sessionTokenFromClient)
   return (
     <html lang="en">
       <body
@@ -35,7 +34,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           <AppProvider
-            initilaSessionToken={
+            initialSessionToken={
               sessionTokenFromClient?.value
             }
           >
